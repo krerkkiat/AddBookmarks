@@ -1,3 +1,8 @@
 <Solution>
+  <Folder Name="/Solution FIles/">
+    <File Path=".gitignore" />
+    <File Path="LICENSE" />
+    <File Path="README.md" />
+  </Folder>
   <Project Path="AddBookmarks/AddBookmarks.csproj" />
 </Solution>
