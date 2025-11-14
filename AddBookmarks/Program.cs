@@ -1,7 +1,9 @@
 ﻿using CommandLine;
-using System.Text;
-using System.Linq;
+using CsvHelper;
 using System.Diagnostics;
+using System.Globalization;
+using System.Linq;
+using System.Text;
 
 namespace AddBookmarks
 {
@@ -52,7 +54,6 @@ namespace AddBookmarks
                 }
             }
 
-            // TODO(KC): Clean up the temporary file.
             // Attempt to clean up if the temp file is still exist.
             if (Path.Exists(cpdfBookmarkFile))
             {
@@ -78,28 +79,12 @@ public class Bookmark
     // FIXME(KC): Use stream instead a unit testing with no actual file IO.
     public static async Task<List<Bookmark>> FromFile(string Path)
     {
-        var result = await File.ReadAllLinesAsync(Path);
-        string[] lines = result.Skip(1).ToArray();
-
-        List<Bookmark> bookmarks = new List<Bookmark>();
-        foreach (var line in lines)
+        using (var reader = new StreamReader(Path))
+        using (var csvReader = new CsvReader(reader, CultureInfo.InvariantCulture))
         {
-            if (string.IsNullOrWhiteSpace(line)) continue;
-
-            string[] columns = line.Split(',');
-            bool anyNullOrEmpty = columns.Any(c => string.IsNullOrEmpty(c));
-            if (anyNullOrEmpty) continue;
-
-            // FIXME(KC): Catch parse's exceptions.
-            var bookmark = new Bookmark
-            {
-                Level = int.Parse(columns[0]),
-                Title = columns[1],
-                PageNumber = int.Parse(columns[2]),
-            };
-            bookmarks.Add(bookmark);
+            var bookmarks = csvReader.GetRecords<Bookmark>().ToList();
+            return bookmarks;
         }
-        return bookmarks;
     }
 }
 

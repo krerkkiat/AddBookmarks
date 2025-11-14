@@ -11,14 +11,14 @@ public class BookmarkTests
         _csvWithCommaFilePath = Path.GetTempFileName();
         using (var writer = new StreamWriter(_csvWithCommaFilePath))
         {
-            writer.WriteLine("level,title,page");
+            writer.WriteLine("Level,Title,PageNumber");
             writer.WriteLine("0,\"Test, an escaped comma.\",310");
         }
 
         _csvWithoutCommaFilePath = Path.GetTempFileName();
         using (var writer = new StreamWriter(_csvWithoutCommaFilePath))
         {
-            writer.WriteLine("level,title,page");
+            writer.WriteLine("Level,Title,PageNumber");
             writer.WriteLine("0,Title 1,310");
         }
     }
@@ -41,13 +41,14 @@ public class BookmarkTests
     {
         var bookmarks = await Bookmark.FromFile(_csvWithoutCommaFilePath);
         Assert.That(bookmarks.Count, Is.EqualTo(1));
+        Assert.That(bookmarks.ElementAt(0).Title, Is.EqualTo("Title 1"));
     }
 
     [Test]
-    [Ignore("Need to update the implementation.")]
     public async Task TestFromFileWithComma()
     {
         var bookmarks = await Bookmark.FromFile(_csvWithCommaFilePath);
-        Assert.That(bookmarks.Count, Is.EqualTo(1)); 
+        Assert.That(bookmarks.Count, Is.EqualTo(1));
+        Assert.That(bookmarks.ElementAt(0).Title, Is.EqualTo("Test, an escaped comma."));
     }
 }
