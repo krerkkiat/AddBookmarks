@@ -4,5 +4,6 @@
     <File Path="LICENSE" />
     <File Path="README.md" />
   </Folder>
+  <Project Path="AddBookmarks.Tests/AddBookmarks.Tests.csproj" />
   <Project Path="AddBookmarks/AddBookmarks.csproj" />
 </Solution>

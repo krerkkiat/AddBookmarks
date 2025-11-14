@@ -19,33 +19,11 @@ namespace AddBookmarks
         {
             // TODO(KC): Parse and sanity the command line inputs.
 
-            // TODO(KC): Parse CSV file.
-            var result = await File.ReadAllLinesAsync(opts.BookmarkFile);
-            string[] lines = result.Skip(1).ToArray();
-
-            List<Bookmark> bookmarks = new List<Bookmark>();
-            foreach (var line in lines)
-            {
-                if (string.IsNullOrWhiteSpace(line)) continue;
-
-                string[] columns = line.Split(',');
-                bool anyNullOrEmpty = columns.Any(c => string.IsNullOrEmpty(c));
-                if (anyNullOrEmpty) continue;
-
-                // FIXME(KC): Catch parse's exceptions.
-                var bookmark = new Bookmark
-                {
-                    Level = int.Parse(columns[0]),
-                    Title = columns[1],
-                    PageNumber = int.Parse(columns[2]),
-                };
-                bookmarks.Add(bookmark);
-            }
+            var bookmarks = await Bookmark.FromFile(opts.BookmarkFile);
             foreach (var b in bookmarks)
             {
                 Console.WriteLine(b.ToString());
             }
-
 
             // TODO(KC): Create a temporary file for the bookmark data that cpdf is accepting.
             string cpdfBookmarkFile = Path.GetTempFileName();
@@ -95,6 +73,33 @@ public class Bookmark
     public string ToString()
     {
         return $"{Level} \"{Title}\" {PageNumber}";
+    }
+
+    // FIXME(KC): Use stream instead a unit testing with no actual file IO.
+    public static async Task<List<Bookmark>> FromFile(string Path)
+    {
+        var result = await File.ReadAllLinesAsync(Path);
+        string[] lines = result.Skip(1).ToArray();
+
+        List<Bookmark> bookmarks = new List<Bookmark>();
+        foreach (var line in lines)
+        {
+            if (string.IsNullOrWhiteSpace(line)) continue;
+
+            string[] columns = line.Split(',');
+            bool anyNullOrEmpty = columns.Any(c => string.IsNullOrEmpty(c));
+            if (anyNullOrEmpty) continue;
+
+            // FIXME(KC): Catch parse's exceptions.
+            var bookmark = new Bookmark
+            {
+                Level = int.Parse(columns[0]),
+                Title = columns[1],
+                PageNumber = int.Parse(columns[2]),
+            };
+            bookmarks.Add(bookmark);
+        }
+        return bookmarks;
     }
 }
 
