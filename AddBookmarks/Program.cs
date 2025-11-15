@@ -2,6 +2,7 @@
 using CsvHelper;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -76,10 +77,17 @@ public class Bookmark
         return $"{Level} \"{Title}\" {PageNumber}";
     }
 
-    // FIXME(KC): Use stream instead a unit testing with no actual file IO.
-    public static async Task<List<Bookmark>> FromFile(string Path)
+    public static async Task<List<Bookmark>> FromFile(string FilePath)
     {
-        using (var reader = new StreamReader(Path))
+        using (FileStream fs = File.OpenRead(FilePath))
+        {
+            return await FromFile(fs);
+        }
+    }
+
+    public static async Task<List<Bookmark>> FromFile(Stream DataStream)
+    {
+        using (var reader = new StreamReader(DataStream))
         using (var csvReader = new CsvReader(reader, CultureInfo.InvariantCulture))
         {
             var bookmarks = csvReader.GetRecords<Bookmark>().ToList();
