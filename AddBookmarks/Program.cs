@@ -1,5 +1,6 @@
 ﻿using CommandLine;
 using CsvHelper;
+using CsvHelper.Configuration;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -87,8 +88,12 @@ public class Bookmark
 
     public static async Task<List<Bookmark>> FromFile(Stream DataStream)
     {
+        // From https://github.com/JoshClose/CsvHelper/blob/33970e5183383bdac1fbce3b3fbcdf46b318ca52/tests/CsvHelper.Tests/Reading/ShouldSkipRecordTests.cs#L23
+        CsvConfiguration config = new CsvConfiguration(CultureInfo.InvariantCulture);
+        config.ShouldSkipRecord = args => args.Row.Parser.Record?.All(string.IsNullOrWhiteSpace) ?? false;
+
         using (var reader = new StreamReader(DataStream))
-        using (var csvReader = new CsvReader(reader, CultureInfo.InvariantCulture))
+        using (var csvReader = new CsvReader(reader, config))
         {
             var bookmarks = csvReader.GetRecords<Bookmark>().ToList();
             return bookmarks;
